@@ -1,0 +1,643 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="s-translatex-logo-translator.png">
+    <title>S-Translatex</title>
+    <style>
+        :root {
+            --sxpr: #ff005f;
+            --sxib: #4444ff;
+            --sxgy: #ffbb00;
+            --sxcg: #00ff66;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            color: #000000;
+        }
+
+        html, body {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            padding: 0 12px;
+            overflow-x: hidden; 
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            margin-right: calc(-50vw + 50%);
+            background-color: #ffffff !important;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            width: clamp(48px, 10vw, 64px);
+            height: clamp(48px, 10vw, 64px);
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .sticky-header h1 {
+            font-size: clamp(18px, 4vw, 24px);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #000000 !important;
+        }
+
+        .translator-container {
+            background: #ffffff !important;
+            width: 100%;
+            max-width: 800px;
+            padding: clamp(16px, 3vw, 24px);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            margin: 16px 0;
+            box-sizing: border-box;
+        }
+
+        .controls-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            width: 100%;
+            min-width: 0;
+        }
+
+        select {
+            flex: 1 1 0;
+            min-width: 0;
+            width: 100%;
+            padding: 10px 6px;
+            font-size: clamp(12px, 2.5vw, 14px);
+            border-radius: 8px;
+            outline: none;
+            background-color: #ffffff !important;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #000000 !important;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        #sourceLang {
+            border: 2px solid var(--sxpr) !important;
+        }
+
+        #targetLang {
+            border: 2px solid var(--sxib) !important;
+        }
+
+        select:focus {
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .swap-btn {
+            padding: 0;
+            font-size: 16px;
+            border: none;
+            background: 
+                radial-gradient(circle at top left, var(--sxpr) 0%, transparent 70%),
+                radial-gradient(circle at top right, var(--sxib) 0%, transparent 70%),
+                radial-gradient(circle at bottom left, var(--sxgy) 0%, transparent 70%),
+                radial-gradient(circle at bottom right, var(--sxcg) 0%, transparent 70%) !important;
+            font-weight: bold;
+            border-radius: 50%;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease, opacity 0.2s ease;
+            color: #ffffff !important;
+            width: 38px;
+            height: 38px;
+        }
+
+        .swap-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .text-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .textarea-wrapper {
+            flex: 1 1 240px;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: clamp(130px, 20vh, 180px);
+            padding: 14px;
+            font-size: 15px;
+            border-radius: 8px;
+            resize: vertical;
+            outline: none;
+            line-height: 1.5;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        #inputText {
+            border: 2px solid var(--sxgy) !important;
+        }
+
+        #outputText {
+            border: 2px solid var(--sxcg) !important;
+            background-color: #ffffff !important;
+        }
+
+        textarea::placeholder {
+            color: #000000 !important;
+            opacity: 0.6;
+        }
+
+        textarea:focus {
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: 
+                radial-gradient(circle at top left, var(--sxpr) 0%, transparent 70%),
+                radial-gradient(circle at top right, var(--sxib) 0%, transparent 70%),
+                radial-gradient(circle at bottom left, var(--sxgy) 0%, transparent 70%),
+                radial-gradient(circle at bottom right, var(--sxcg) 0%, transparent 70%) !important;
+            border: none;
+            border-radius: 50%;
+            padding: 0;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.15s ease, opacity 0.2s ease;
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            width: 30px;
+            height: 30px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-icon {
+          width: 24px !important;
+          height: 24px !important;
+          display: block;
+          flex-shrink: 0;
+        }
+
+        .powered-by-google {
+          display: flex;
+          justify-content: flex-end; 
+          align-items: center;       
+          gap: 8px;                  
+          font-family: sans-serif;
+          font-size: 16px;
+          color: #999999;
+          margin-top: 14px;
+        }
+
+        .powered-by-google svg {
+          height: 20px;              
+          width: auto;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <header class="sticky-header">
+        <img class="logo" src="s-translatex-logo-translator.png" alt="S-Translatex Logo">
+        <h1>S-Translatex</h1>
+    </header>
+
+    <div class="translator-container">
+        <div class="controls-bar">
+            <select id="sourceLang"></select>
+            <button class="swap-btn" id="swapBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="btn-icon">
+                  <path d="M6 9H18M15.5 6.5L18 9L15.5 11.5M18 15H6M8.5 12.5L6 15L8.5 17.5" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <select id="targetLang"></select>
+        </div>
+
+        <div class="text-container">
+            <div class="textarea-wrapper">
+                <textarea id="inputText" placeholder="Text..."></textarea>
+                <div class="action-bar">
+                    <button class="action-btn" id="speakInputBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" class="btn-icon">
+                          <path fill="#ffffff" d="M120 244H175L244 175V394L175 325H120Z"/>
+                          <path fill="#ffffff" d="M147 271H186L216 241V328L186 298H147Z"/>
+                          <path fill="#ffffff" d="M271 165C328 178 367 222 367 284C367 346 328 390 271 403V374C311 363 339 331 339 284C339 237 311 205 271 194Z"/>
+                          <path fill="#ffffff" d="M271 213C294 222 306 249 306 284C306 319 294 346 271 355Z"/>
+                        </svg>
+                    </button>
+                    <button class="action-btn" id="copyInputBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="btn-icon">
+                          <path d="M8 7V5C8 3.9 8.9 3 10 3H19C20.1 3 21 3.9 21 5V14C21 15.1 20.1 16 19 16H17" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <rect x="3" y="7" width="14" height="14" rx="2" fill="none" stroke="#ffffff" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="textarea-wrapper">
+                <textarea id="outputText" placeholder="Translation..." readonly></textarea>
+                <div class="action-bar">
+                    <button class="action-btn" id="speakOutputBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" class="btn-icon">
+                          <path fill="#ffffff" d="M120 244H175L244 175V394L175 325H120Z"/>
+                          <path fill="#ffffff" d="M147 271H186L216 241V328L186 298H147Z"/>
+                          <path fill="#ffffff" d="M271 165C328 178 367 222 367 284C367 346 328 390 271 403V374C311 363 339 331 339 284C339 237 311 205 271 194Z"/>
+                          <path fill="#ffffff" d="M271 213C294 222 306 249 306 284C306 319 294 346 271 355Z"/>
+                        </svg>
+                    </button>
+                    <button class="action-btn" id="copyOutputBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="btn-icon">
+                          <path d="M8 7V5C8 3.9 8.9 3 10 3H19C20.1 3 21 3.9 21 5V14C21 15.1 20.1 16 19 16H17" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <rect x="3" y="7" width="14" height="14" rx="2" fill="none" stroke="#ffffff" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="powered-by-google">
+          <span>Powered by</span>
+          <svg aria-hidden="true" viewBox="0 0 92 30" xmlns="http://w3.org">
+            <path d="M10.35 23.1c5.89.06 9.9-3.9 9.9-9.98q0-.75-.14-1.7h-9.8v2.93h6.87c-.36 3.83-3.06 5.82-6.76 5.82-4.15 0-7.33-3.12-7.33-7.66 0-4.47 3.03-7.6 7.33-7.6 2.16 0 3.76.67 5.35 2.3l2.05-2.14c-1.8-2.1-4.4-3.1-7.44-3.1-5.9 0-10.49 4.43-10.49 10.5 0 5.8 4.43 10.58 10.46 10.64" fill="#3186ff"></path>
+            <path d="M29.33 23.1c4.41 0 7.6-3.23 7.6-7.72 0-4.4-3.12-7.67-7.6-7.67-4.23 0-7.57 3-7.57 7.67 0 4.45 3.15 7.73 7.57 7.73m0-2.68c-2.68 0-4.56-2.2-4.56-5.04s1.98-4.99 4.56-4.99c2.73 0 4.57 2.2 4.57 5 0 2.87-1.88 5.03-4.57 5.03" fill="#fc413d"></path>
+            <path d="M45.76 23.1c4.44 0 7.6-3.24 7.6-7.72 0-4.4-3.12-7.67-7.6-7.67-4.24 0-7.57 3-7.57 7.67 0 4.45 3.15 7.73 7.57 7.73m0-2.68c-2.68 0-4.56-2.2-4.56-5.04s1.98-4.99 4.56-4.99c2.73 0 4.57 2.2 4.57 5 0 2.87-1.88 5.03-4.57 5.03" fill="#ffbe00"></path>
+            <path d="M61.77 29.2q7.18 0 7.17-8.22V8.23h-2.93v1.8h-.06c-.92-1.43-2.66-2.23-4.62-2.23-4.24 0-6.82 3.23-6.82 7.54 0 4.3 2.51 7.46 6.93 7.46a5.5 5.5 0 0 0 4.47-2.26h.1v1.31c0 2.9-1.5 4.6-4.29 4.6-1.82 0-3.03-1-3.92-2.68l-2.66 1.17c1.4 2.96 3.4 4.26 6.63 4.26m0-9.2c-2.59 0-4.24-1.9-4.24-4.75 0-2.74 1.64-4.71 4.25-4.71s4.23 1.83 4.23 4.7c0 2.9-1.7 4.76-4.24 4.76" fill="#3186ff"></path>
+            <path d="M74.3 2.41h-3.08v20.23h3.08z" fill="#00af57"></path>
+            <path d="M83.4 23.08a7.4 7.4 0 0 0 6.34-3.52l-2.3-1.5a4.8 4.8 0 0 1-3.9 2.2 4.6 4.6 0 0 1-3.99-2.4l10.33-4.39a7 7 0 0 0-.28-1.07c-1.23-3.16-3.38-4.6-6.28-4.6-4.42 0-7.43 3.22-7.43 7.68 0 4.56 3.17 7.6 7.5 7.6m-4.51-7.61v-.17c0-2.93 1.68-4.9 4.32-4.9 1.26 0 2.39.57 3.15 1.9z" fill="#fc413d"></path>
+        </svg>
+      </div>
+
+    </div>
+
+    <script>
+        const languages = {
+            "auto": "Detect language",
+            "ab": "Abkhaz",
+            "ace": "Acehnese",
+            "ach": "Acholi",
+            "af": "Afrikaans",
+            "sq": "Albanian",
+            "alz": "Alur",
+            "am": "Amharic",
+            "ar": "Arabic",
+            "hy": "Armenian",
+            "as": "Assamese",
+            "awa": "Awadhi",
+            "ay": "Aymara",
+            "az": "Azerbaijani",
+            "ban": "Balinese",
+            "bm": "Bambara",
+            "ba": "Bashkir",
+            "eu": "Basque",
+            "btx": "Batak Karo",
+            "bts": "Batak Simalungun",
+            "bbc": "Batak Toba",
+            "be": "Belarusian",
+            "bem": "Bemba",
+            "bn": "Bengali",
+            "bew": "Betawi",
+            "bho": "Bhojpuri",
+            "bik": "Bikol",
+            "bs": "Bosnian",
+            "br": "Breton",
+            "bg": "Bulgarian",
+            "bua": "Buryat",
+            "yue": "Cantonese",
+            "ca": "Catalan",
+            "ceb": "Cebuano",
+            "ny": "Chichewa",
+            "zh-CN": "Chinese (Simplified)",
+            "zh-TW": "Chinese (Traditional)",
+            "cv": "Chuvash",
+            "co": "Corsican",
+            "crh": "Crimean Tatar",
+            "hr": "Croatian",
+            "cs": "Czech",
+            "da": "Danish",
+            "din": "Dinka",
+            "doi": "Dogri",
+            "nl": "Dutch",
+            "dz": "Dzongkha",
+            "en": "English",
+            "eo": "Esperanto",
+            "et": "Estonian",
+            "ee": "Ewe",
+            "fo": "Faroese",
+            "fj": "Fijian",
+            "tl": "Filipino (Tagalog)",
+            "fi": "Finnish",
+            "fr": "French",
+            "fy": "Frisian",
+            "ff": "Fula",
+            "ga": "Irish",
+            "gd": "Scottish Gaelic",
+            "gl": "Galician",
+            "ka": "Georgian",
+            "de": "German",
+            "el": "Greek",
+            "gn": "Guarani",
+            "gu": "Gujarati",
+            "ht": "Haitian Creole",
+            "ha": "Hausa",
+            "haw": "Hawaiian",
+            "he": "Hebrew",
+            "hi": "Hindi",
+            "hmn": "Hmong",
+            "hu": "Hungarian",
+            "is": "Icelandic",
+            "ig": "Igbo",
+            "iloc": "Ilocano",
+            "id": "Indonesian",
+            "it": "Italian",
+            "ja": "Japanese",
+            "jw": "Javanese",
+            "kn": "Kannada",
+            "kk": "Kazakh",
+            "km": "Khmer",
+            "rw": "Kinyarwanda",
+            "gom": "Konkani",
+            "ko": "Korean",
+            "kri": "Krio",
+            "ku": "Kurdish (Kurmanji)",
+            "ckb": "Kurdish (Sorani)",
+            "ky": "Kyrgyz",
+            "lo": "Lao",
+            "la": "Latin",
+            "lv": "Latvian",
+            "ln": "Lingala",
+            "lt": "Lithuanian",
+            "lg": "Luganda",
+            "lb": "Luxembourgish",
+            "mk": "Macedonian",
+            "mad": "Madurese",
+            "mai": "Maithili",
+            "mak": "Makassar",
+            "mg": "Malagasy",
+            "ms": "Malay",
+            "ml": "Malayalam",
+            "mt": "Maltese",
+            "gv": "Manx",
+            "mi": "Maori",
+            "mr": "Marathi",
+            "mni-Mtei": "Meiteilon (Manipuri)",
+            "min": "Minangkabau",
+            "lus": "Mizo",
+            "mn": "Mongolian",
+            "my": "Myanmar (Burmese)",
+            "nr": "Ndebele (South)",
+            "ne": "Nepali",
+            "no": "Norwegian",
+            "nus": "Nuer",
+            "nyan": "Nyanja",
+            "or": "Odia (Oriya)",
+            "om": "Oromo",
+            "os": "Ossetian",
+            "pag": "Pangasinan",
+            "pap": "Papiamento",
+            "ps": "Pashto",
+            "fa": "Persian",
+            "pl": "Polish",
+            "pt": "Portuguese",
+            "pa": "Punjabi",
+            "qu": "Quechua",
+            "ro": "Romanian",
+            "rom": "Romani",
+            "rn": "Rundi",
+            "ru": "Russian",
+            "sm": "Samoan",
+            "sg": "Sango",
+            "sa": "Sanskrit",
+            "sat": "Santali",
+            "sr": "Serbian",
+            "st": "Sesotho",
+            "nso": "Sesotho sa Leboa (Northern Sotho)",
+            "sn": "Shona",
+            "scn": "Sicilian",
+            "sd": "Sindhi",
+            "si": "Sinhala",
+            "sk": "Slovak",
+            "sl": "Slovenian",
+            "so": "Somali",
+            "es": "Spanish",
+            "su": "Sundanese",
+            "sw": "Swahili",
+            "ss": "Swati",
+            "sv": "Swedish",
+            "tg": "Tajik",
+            "ta": "Tamil",
+            "tt": "Tatar",
+            "te": "Telugu",
+            "th": "Thai",
+            "bo": "Tibetan",
+            "ti": "Tigrinya",
+            "tpi": "Tok Pisin",
+            "ts": "Tsonga",
+            "tn": "Tswana",
+            "tr": "Turkish",
+            "tk": "Turkmen",
+            "ak": "Twi (Akan)",
+            "uk": "Ukrainian",
+            "ur": "Urdu",
+            "ug": "Uyghur",
+            "uz": "Uzbek",
+            "vec": "Venetian",
+            "vi": "Vietnamese",
+            "war": "Waray",
+            "cy": "Welsh",
+            "xh": "Xhosa",
+            "yi": "Yiddish",
+            "yo": "Yoruba",
+            "yua": "Yucatec Maya",
+            "zap": "Zapotec",
+            "zu": "Zulu"
+        };
+
+        const sourceLang = document.getElementById('sourceLang');
+        const targetLang = document.getElementById('targetLang');
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const swapBtn = document.getElementById('swapBtn');
+
+        const speakInputBtn = document.getElementById('speakInputBtn');
+        const copyInputBtn = document.getElementById('copyInputBtn');
+        const speakOutputBtn = document.getElementById('speakOutputBtn');
+        const copyOutputBtn = document.getElementById('copyOutputBtn');
+
+        function populateDropdowns() {
+            Object.entries(languages).forEach(([code, name]) => {
+                const opt1 = new Option(name, code);
+                sourceLang.add(opt1);
+
+                if (code !== 'auto') {
+                    const opt2 = new Option(name, code);
+                    targetLang.add(opt2);
+                }
+            });
+
+            sourceLang.value = 'auto';
+            targetLang.value = 'en';
+        }
+
+        populateDropdowns();
+
+        let timer;
+        inputText.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(translateText, 300);
+        });
+
+        sourceLang.addEventListener('change', translateText);
+        targetLang.addEventListener('change', translateText);
+
+        swapBtn.addEventListener('click', () => {
+            if (sourceLang.value === 'auto') return;
+
+            const tempLang = sourceLang.value;
+            sourceLang.value = targetLang.value;
+            targetLang.value = tempLang;
+
+            const tempText = inputText.value;
+            inputText.value = outputText.value;
+         outputText.value = tempText;
+
+            translateText();
+        });
+
+        async function translateText() {
+            const text = inputText.value.trim();
+            if (!text) {
+                outputText.value = '';
+                return;
+            }
+
+            outputText.placeholder = 'Translating...';
+
+            const sl = sourceLang.value;
+            const tl = targetLang.value;
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data && data[0]) {
+                    const translatedText = data[0].map(item => item[0]).join('');
+                    outputText.value = translatedText;
+                } else {
+                    outputText.value = 'Translation error.';
+                }
+            } catch (err) {
+                outputText.value = 'Error connecting to translation engine.';
+            }
+        }
+
+        function speakText(text, langCode) {
+            if (!text.trim()) return;
+            if (!('speechSynthesis' in window)) {
+                alert('Text-to-speech is not supported in this browser.');
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            if (langCode && langCode !== 'auto') {
+                utterance.lang = langCode;
+            }
+            window.speechSynthesis.speak(utterance);
+        }
+
+        speakInputBtn.addEventListener('click', () => {
+            speakText(inputText.value, sourceLang.value);
+        });
+
+        speakOutputBtn.addEventListener('click', () => {
+            speakText(outputText.value, targetLang.value);
+        });
+
+        async function copyToClipboard(text, buttonElement) {
+            if (!text.trim()) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalText = buttonElement.innerHTML;
+                buttonElement.innerHTML = `<svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#ffffff" stroke-width="2"/><path d="M7.5 12L10.5 15L16.5 9" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                setTimeout(() => {
+                    buttonElement.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                alert('Failed to copy text.');
+            }
+        }
+
+        copyInputBtn.addEventListener('click', () => {
+            copyToClipboard(inputText.value, copyInputBtn);
+        });
+
+        copyOutputBtn.addEventListener('click', () => {
+            copyToClipboard(outputText.value, copyOutputBtn);
+        });
+    </script>
+</body>
+</html>
