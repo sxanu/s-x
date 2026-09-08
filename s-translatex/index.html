@@ -527,6 +527,19 @@
         const copyInputBtn = document.getElementById('copyInputBtn');
         const speakOutputBtn = document.getElementById('speakOutputBtn');
         const copyOutputBtn = document.getElementById('copyOutputBtn');
+        const clearButton = document.getElementById('clearBtn');
+
+        function clearVis() {
+            const val = inputText.value.trim();
+            if (val === '') {
+              clearBtn.style.display = "none";
+            }
+            else {
+              clearBtn.style.display = "";
+            }
+        }
+
+        inputText.addEventListener('input', clearVis);
 
         function populateDropdowns() {
             Object.entries(languages).forEach(([code, name]) => {
@@ -563,7 +576,7 @@
 
             const tempText = inputText.value;
             inputText.value = outputText.value;
-         outputText.value = tempText;
+            outputText.value = tempText;
 
             translateText();
         });
