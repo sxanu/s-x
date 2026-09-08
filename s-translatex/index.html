@@ -529,6 +529,12 @@
         const copyOutputBtn = document.getElementById('copyOutputBtn');
         const clearButton = document.getElementById('clearBtn');
 
+        inputText.value = "a";
+        
+        setTimeout(() => {
+          inputText.value = "";
+        }, 1);
+        
         function clearVis() {
             const val = inputText.value.trim();
             if (val === '') {
